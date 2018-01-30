@@ -8,43 +8,43 @@ using tink.MacroApi;
 #end
 
 class Promises {
-	public static macro function multi(e:Expr):Expr {
+	public static macro function multi(e:Expr, ?lazy:Expr):Expr {
 		return switch Context.typeof(e) {
 			case TAnonymous(_.get() => {fields: fields}):
-				var vars = [];
-				var results = [];
-				var promises = [];
+				
+				var obj:Array<Field> = [];
+				var exprs:Array<Expr> = [];
 				
 				for(field in fields) {
 					var name = field.name;
-					var varname = '__promises_$name';
-					var type = field.type;
-					var ct = type.toComplex();
 					
-					
-					vars.push({
-						expr: null,
-						name: varname,
-						type: promiseType(ct),
+					obj.push({
+						name: name,
+						kind: FVar(promiseType(field.type.toComplex())),
+						pos: field.pos,
+						meta: [{name: ':optional', pos: field.pos}],
 					});
 					
-					promises.push(macro tink.core.Promise.lift(__obj.$name).next(function(v) {
-						$i{varname} = v;
-						return tink.core.Noise.Noise.Noise;
+					exprs.push(macro tink.core.Promise.lift(__obj.$name).handle(function(o) switch o {
+						case Success(v):
+							__ret.$name = v;
+							if(--__count == 0) cb(Success(__ret));
+						case Failure(e):
+							cb(Failure(e));
 					}));
-					
-					results.push({
-						field: name,
-						expr: macro $i{varname},
-					});
 				}
 				
-				return macro {
+				switch lazy {
+					case macro null: lazy = macro false;
+					case _: //
+				}
+				
+				var ct = TAnonymous(obj);
+				return macro @:pos(e.pos) {
 					var __obj = $e;
-					${EVars(vars).at()}
-					var __promises = $a{promises};
-					tink.core.Promise.inParallel(__promises)
-						.next(function(_) return ${EObjectDecl(results).at()});
+					var __ret:$ct = {};
+					var __count = $v{fields.length};
+					Promise.lift(Future.async(function(cb) $b{exprs}, $lazy));
 				}
 				
 			default:
