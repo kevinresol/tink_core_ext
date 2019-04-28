@@ -20,15 +20,20 @@ class Promises {
 				for(field in fields) {
 					var name = field.name;
 					
+					var ct = promiseType(field.type.toComplex());
+					switch ct {
+						case TPath({name: 'DirectType', pack: ['tink', 'macro']}): field.pos.error('Cannot determine the type of ${field.name}, please hint its type explicitly');
+						case _: // ok
+					}
 					obj.push({
 						name: name,
-						kind: FVar(promiseType(field.type.toComplex())),
+						kind: FVar(ct),
 						pos: field.pos,
 						meta: [{name: ':optional', pos: field.pos}],
 					});
 					
 					exprs.push(
-						macro tink.core.Promise.lift(__obj.$name)
+						macro (__obj.$name:Promise<$ct>)
 							.handle(@:privateAccess tink.core.ext.Promises.handle(cb, function(v) __ctx.ret.$name = v, __ctx))
 					);
 				}
