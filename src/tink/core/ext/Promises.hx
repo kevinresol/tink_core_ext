@@ -10,7 +10,7 @@ using tink.MacroApi;
 
 class Promises {
 	
-	public static macro function multi(e:Expr, ?lazy:Expr):Expr {
+	public static macro function multi(e:Expr):Expr {
 		return switch haxe.macro.Context.typeof(e) {
 			case TAnonymous(_.get() => {fields: fields}):
 				
@@ -35,18 +35,13 @@ class Promises {
 					}
 				}
 				
-				switch lazy {
-					case macro null: lazy = macro false;
-					case _: //
-				}
-				
 				var ct = TAnonymous(obj);
 				return macro @:pos(e.pos) {
 					var __obj = $e;
 					Promise.lift(Future.async(function(cb) {
 						var __ctx = new tink.core.ext.Promises.Container<$ct>(cb, $v{fields.length});
 						$b{exprs}
-					}, $lazy));
+					}));
 				}
 				
 			default:
