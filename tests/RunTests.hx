@@ -17,7 +17,7 @@ class RunTests {
   
   function new() {}
   
-  public function test() {
+  public function multi() {
     Promises.multi({
       f: foo(),
       b: bar(),
@@ -31,14 +31,40 @@ class RunTests {
     return asserts;
   }
   
-  public function lazy() {
-    Promises.multi({
-      d: dummy(),
-    }, true);
-    haxe.Timer.delay(function() {
-      asserts.assert(!run);
+  // public function lazy() {
+  //   Promises.multi({
+  //     d: dummy(),
+  //   });
+  //   haxe.Timer.delay(function() {
+  //     asserts.assert(!run);
+  //     asserts.done();
+  //   }, 100);
+  //   return asserts;
+  // }
+  
+  public function queue() {
+    var counter = 0;
+    var queue = Promises.queue();
+    var promises = [for(i in 1...4) Promise.lazy(() -> new Promise(function(resolve, reject) {
+      haxe.Timer.delay(function() {
+        counter += i;
+        resolve(Noise);
+      }, (5-i)*20);
+    }))];
+    
+    asserts.assert(counter == 0);
+    queue.queue(() -> promises[0]).handle(o -> {
+      asserts.assert(counter == 1);
+    });
+    queue.queue(() -> promises[1]).handle(o -> {
+      asserts.assert(counter == 3);
+    });
+    asserts.assert(counter == 0);
+    queue.queue(() -> promises[2]).handle(o -> {
+      asserts.assert(counter == 6);
       asserts.done();
-    }, 100);
+    });
+    
     return asserts;
   }
   

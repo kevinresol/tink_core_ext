@@ -49,6 +49,10 @@ class Promises {
 		}
 	}
 	
+	public static inline function queue<T>():PromiseQueue<T> {
+		return new PromiseQueue();
+	}
+	
 	#if macro
 	static function promiseType(ct:ComplexType) {
 		return Context.typeof(macro {
@@ -77,5 +81,62 @@ class Container<T:{}> {
 			case Failure(e):
 				cb(Failure(e));
 		}
+	}
+}
+
+class PromiseQueue<T> {
+	final pending:Array<Pair<PromiseTrigger<T>, ()->Promise<T>>>;
+	
+	var busy:Bool;
+	
+	public function new() {
+		pending = [];
+		busy = false;
+	}
+	
+	public inline function asap(f:()->Promise<T>):Promise<T> {
+		return add(f, pending.unshift);
+	}
+	
+	public inline function queue(f:()->Promise<T>):Promise<T> {
+		return add(f, pending.push);
+	}
+	
+	public function add(f:()->Promise<T>, adder:Pair<PromiseTrigger<T>, ()->Promise<T>>->Void):Promise<T> {
+		
+		function run() {
+			busy = true;
+			return f();
+		}
+		
+		var ret:Promise<T> =
+			if(busy) {
+				var trigger = Promise.trigger();
+				adder(new Pair(trigger, run));
+				trigger;
+			} else {
+				run();
+			}
+			
+		ret.handle(o -> {
+			busy = false;
+			switch o {
+				case Success(_): Callback.defer(proceed);
+				case Failure(_): Callback.defer(terminate);
+			}
+		});
+		
+		return ret;
+	}
+	
+	function proceed() {
+		switch pending.shift() {
+			case null: // ok
+			case pair: pair.b().handle(pair.a.trigger);
+		}
+	}
+	
+	function terminate() {
+		for(pair in pending) pair.a.reject(new Error('Previous operation failed'));
 	}
 }
