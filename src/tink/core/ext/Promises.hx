@@ -94,15 +94,16 @@ class PromiseQueue<T> {
 		busy = false;
 	}
 	
-	public inline function asap(f:()->Promise<T>):Promise<T> {
-		return add(f, pending.unshift);
+	public inline function asap(f:()->Promise<T>, ?delayNext:()->Future<Noise>):Promise<T> {
+		return add(f, pending.unshift, delayNext);
 	}
 	
-	public inline function queue(f:()->Promise<T>):Promise<T> {
-		return add(f, pending.push);
+	public inline function queue(f:()->Promise<T>, ?delayNext:()->Future<Noise>):Promise<T> {
+		return add(f, pending.push, delayNext);
 	}
 	
-	public function add(f:()->Promise<T>, adder:Pair<PromiseTrigger<T>, ()->Promise<T>>->Void):Promise<T> {
+	public function add(f:()->Promise<T>, adder:Pair<PromiseTrigger<T>, ()->Promise<T>>->Void, ?delayNext:()->Future<Noise>):Promise<T> {
+		if(delayNext == null) delayNext = Future.delay.bind(0, Noise);
 		
 		function run() {
 			busy = true;
@@ -121,7 +122,7 @@ class PromiseQueue<T> {
 		ret.handle(o -> {
 			busy = false;
 			switch o {
-				case Success(_): Callback.defer(proceed);
+				case Success(_): delayNext().handle(proceed);
 				case Failure(_): Callback.defer(terminate);
 			}
 		});
