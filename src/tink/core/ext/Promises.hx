@@ -120,7 +120,6 @@ class PromiseQueue<T> {
 			}
 			
 		ret.handle(o -> {
-			busy = false;
 			switch o {
 				case Success(_): delayNext().handle(proceed);
 				case Failure(_): Callback.defer(terminate);
@@ -132,7 +131,7 @@ class PromiseQueue<T> {
 	
 	function proceed() {
 		switch pending.shift() {
-			case null: // ok
+			case null: busy = false;
 			case pair: pair.b().handle(pair.a.trigger);
 		}
 	}
