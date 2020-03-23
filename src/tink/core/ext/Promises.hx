@@ -119,12 +119,7 @@ class PromiseQueue<T> {
 				run();
 			}
 			
-		ret.handle(o -> {
-			switch o {
-				case Success(_): delayNext().handle(proceed);
-				case Failure(_): Callback.defer(terminate);
-			}
-		});
+		ret.handle(o -> delayNext().handle(proceed));
 		
 		return ret;
 	}
