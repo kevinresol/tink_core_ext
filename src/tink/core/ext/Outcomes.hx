@@ -28,13 +28,13 @@ class Outcomes {
 				}
 				var result = EObjectDecl([for(field in fields) {field: field.field, expr: macro $i{field.field}}]).at(e.pos);
 			
-				return (macro {
+				return macro {
 					var o = $e;
 					switch $a{values} {
 						case [$a{sucesses}]: tink.core.Outcome.Success($result);
 						case $a{failures}: tink.core.Outcome.Failure(e);
 					}
-				}).log();
+				}
 				
 			case _:
 				e.pos.error('Expected object declaration');
