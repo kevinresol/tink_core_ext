@@ -28,7 +28,6 @@ class Promises {
 								name: name,
 								kind: FVar(ct),
 								pos: field.pos,
-								meta: [{name: ':optional', pos: field.pos}],
 							});
 							
 							exprs.push(macro (__obj.$name:Promise<$ct>).handle(__ctx.handle(function(r, v) r.$name = v)));
