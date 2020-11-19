@@ -20,18 +20,22 @@ class Promises {
 				for(field in fields) {
 					var name = field.name;
 					
-					switch promiseType(field.type.toComplex()) {
-						case TPath({name: 'DirectType', pack: ['tink', 'macro']}):
+					var ct = switch field.type.toComplex() {
+						case TPath({name: 'Promise', pack: ['tink', 'core'], params: [TPType(t)]}):
+							t;
+						case promiseType(_) => TPath({name: 'DirectType', pack: ['tink', 'macro']}):
 							field.pos.error('Cannot determine the type of ${field.name}, please hint its type explicitly');
-						case ct: 
-							obj.push({
-								name: name,
-								kind: FVar(ct),
-								pos: field.pos,
-							});
-							
-							exprs.push(macro (__obj.$name:Promise<$ct>).handle(__ctx.handle(function(r, v) r.$name = v)));
+						case promiseType(_) => t:
+							t;
 					}
+					
+					obj.push({
+						name: name,
+						kind: FVar(ct),
+						pos: field.pos,
+					});
+					
+					exprs.push(macro (__obj.$name:Promise<$ct>).handle(__ctx.handle(function(r, v) r.$name = v)));
 				}
 				
 				var ct = TAnonymous(obj);

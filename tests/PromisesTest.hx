@@ -14,12 +14,23 @@ class PromisesTest {
 			f: foo(),
 			b: bar(),
 		})
-		.next(function(o) {
-			asserts.assert(o.f == 'foo');
-			asserts.assert(o.b == 'bar');
-			return Noise;
-		})
-		.handle(asserts.handle);
+			.next(function(o) {
+				asserts.assert(o.f == 'foo');
+				asserts.assert(o.b == 'bar');
+				return Noise;
+			})
+			.handle(asserts.handle);
+		return asserts;
+	}
+	
+	public function privateType() {
+		var p = Promise.resolve(({foo:1}:Private));
+		Promises.multi({f: p})
+			.next(function(o) {
+				asserts.assert(o.f.foo == 1);
+				return Noise;
+			})
+			.handle(asserts.handle);
 		return asserts;
 	}
 	
@@ -67,3 +78,5 @@ class PromisesTest {
 	function dummy() return Future.async(function(cb) cb(run = true), true);
 	function delay(v, i) return Future.async(function(cb) haxe.Timer.delay(cb.bind(v), i));
 }
+
+private typedef Private = {foo:Int}
