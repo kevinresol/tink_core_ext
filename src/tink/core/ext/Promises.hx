@@ -20,13 +20,11 @@ class Promises {
 				for(field in fields) {
 					var name = field.name;
 					
-					var ct = switch field.type.toComplex() {
-						case TPath({name: 'Promise', pack: ['tink', 'core'], params: [TPType(t)]}):
-							t;
-						case promiseType(_) => TPath({name: 'DirectType', pack: ['tink', 'macro']}):
+					var ct = switch field.type.reduce().toComplex() {
+						case TPath({name: 'DirectType', pack: ['tink', 'macro']}) | (macro:Dynamic) | (macro:Any):
 							field.pos.error('Cannot determine the type of ${field.name}, please hint its type explicitly');
-						case promiseType(_) => t:
-							t;
+						case ct:
+							promiseType(ct);
 					}
 					
 					obj.push({
