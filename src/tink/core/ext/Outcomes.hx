@@ -36,7 +36,7 @@ class Outcomes {
 				}
 				var result = EObjectDecl([for (field in fields) {field: field.field, expr: macro $i{field.field}}]).at(e.pos);
 
-				return macro {
+				return macro @:pos(e.pos) {
 					var o = $e;
 					switch $a{values} {
 						case [$a{sucesses}]: tink.core.Outcome.Success($result);
