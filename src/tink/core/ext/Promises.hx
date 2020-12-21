@@ -40,7 +40,7 @@ class Promises {
 				return macro @:pos(e.pos) {
 					var __obj = $e;
 					Promise.lift(Future.async(function(cb) {
-						var __ctx = new tink.core.ext.Promises.Container<$ct>(cb, $v{fields.length});
+						var __ctx = new tink.core.ext.Promises.PromisesContainer<$ct>(cb, $v{fields.length});
 						$b{exprs}
 					}));
 				}
@@ -64,7 +64,7 @@ class Promises {
 	#end
 }
 
-class Container<T:{}> {
+class PromisesContainer<T:{}> {
 	var result:T = cast {};
 	var count:Int;
 	var cb:Outcome<T, Error>->Void;
