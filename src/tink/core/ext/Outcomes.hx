@@ -9,7 +9,7 @@ using tink.MacroApi;
 #end
 
 class Outcomes {
-	public static macro function multi(e:Expr):Expr {
+	public static macro function multi(e:Expr, ?combined:Expr):Expr {
 		return switch e.expr {
 			case EObjectDecl(fields):
 				var values = [
@@ -34,7 +34,12 @@ class Outcomes {
 						}
 					];
 				}
-				var result = EObjectDecl([for (field in fields) {field: field.field, expr: macro $i{field.field}}]).at(e.pos);
+				var result = switch combined {
+					case macro null:
+						EObjectDecl([for (field in fields) {field: field.field, expr: macro $i{field.field}}]).at(e.pos);
+					case v:
+						combined;
+				}
 
 				return macro @:pos(e.pos) {
 					var o = $e;

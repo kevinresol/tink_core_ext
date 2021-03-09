@@ -20,3 +20,26 @@ Promises.multi({
 	case _:
 });
 ```
+
+## Outcome Extensions
+
+`Outcome.multi` produces a single `Success` if all the provided outcomes are success. The second parameter is an optional expression to produce the combined result from the indivdual results. When not provided, it will by default produce an object with the same field names as the input object.
+
+```haxe
+var outcome1:Outcome<Int>;
+var outcome2:Outcome<String>;
+
+switch Outcomes.multi({int: outcome1, str: outcome2}) {
+	case Success(result):
+		$type(result.int); // Int
+		$type(result.str); // String
+	case Failure(e):
+}
+
+switch Outcomes.multi({int: outcome1, str: outcome2}, {foo: int, bar: str}) {
+	case Success(result):
+		$type(result.foo); // Int
+		$type(result.bar); // String
+	case Failure(e):
+}
+```

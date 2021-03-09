@@ -24,6 +24,18 @@ class OutcomesTest {
 		return asserts;
 	}
 	
+	public function multiWithCustomCombiner() {
+		var outcome = Outcomes.multi({foo: foo(), bar: bar()}, {f: foo, b: bar});
+		
+		outcome.next(function(o) {
+			asserts.assert(o.f == 1);
+			asserts.assert(o.b == 'b');
+			return Noise;
+		})
+		.handle(asserts.handle);
+		return asserts;
+	}
+	
 	public function multiWithError() {
 		var outcome = Outcomes.multi({
 			foo: foo(),
