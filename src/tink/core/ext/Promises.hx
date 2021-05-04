@@ -39,10 +39,10 @@ class Promises {
 				var ct = TAnonymous(obj);
 				return macro @:pos(e.pos) {
 					var __obj = $e;
-					Promise.lift(Future.async(function(cb) {
+					Future #if (tink_core >= "2") .irreversible #else .async #end(function(cb) {
 						var __ctx = new tink.core.ext.Promises.PromisesContainer<$ct>(cb, $v{fields.length});
 						$b{exprs}
-					}));
+					}).asPromise();
 				}
 				
 			default:
