@@ -33,7 +33,7 @@ class Futures {
 				final ct = TAnonymous(obj);
 				return macro @:pos(e.pos) {
 					final __obj = $e;
-					Future.async(function(cb) {
+					Future #if (tink_core >= "2") .irreversible #else .async #end(function(cb) {
 						final __ctx = new tink.core.ext.Futures.FuturesContainer<$ct>(cb, $v{fields.length});
 						$b{exprs}
 					});
