@@ -22,6 +22,16 @@ class PromisesTest {
 		return asserts;
 	}
 	
+	public function multiWithCustomCombiner() {
+		Promises.multi({
+			f: foo(),
+			b: bar(),
+		}, f + b)
+			.next(res -> asserts.assert(res == 'foobar'))
+			.handle(asserts.handle);
+		return asserts;
+	}
+	
 	public function privateType() {
 		final p = Promise.resolve(({foo:1}:Private));
 		Promises.multi({f: p})

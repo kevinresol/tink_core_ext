@@ -10,7 +10,7 @@ using tink.MacroApi;
 
 class Promises {
 	
-	public static macro function multi(e:Expr):Expr {
+	public static macro function multi(e:Expr, ?combined:Expr):Expr {
 		return switch haxe.macro.Context.typeof(e) {
 			case TAnonymous(_.get() => {fields: fields}):
 				
@@ -37,12 +37,28 @@ class Promises {
 				}
 				
 				final ct = TAnonymous(obj);
-				return macro @:pos(e.pos) {
+				
+				final expr = macro @:pos(e.pos) {
 					final __obj = $e;
 					Future.irreversible(cb -> {
 						final __ctx = new tink.core.ext.Promises.PromisesContainer<$ct>(cb, $v{fields.length});
 						$b{exprs}
 					}).asPromise();
+				}
+				
+				switch combined {
+					case macro null:
+						expr;
+					case _:
+						final vars = EVars([for(f in obj) {
+							final fname = f.name;
+							{name: fname, expr: macro res.$fname}
+						}]).at(e.pos);
+						
+						macro $expr.next((res:$ct) -> {
+							$vars;
+							$combined;
+						});
 				}
 				
 			default:
