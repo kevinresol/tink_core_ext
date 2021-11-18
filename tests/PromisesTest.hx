@@ -35,7 +35,7 @@ class PromisesTest {
 	//   Promises.multi({
 	//     d: dummy(),
 	//   });
-	//   haxe.Timer.delay(function() {
+	//   haxe.Timer.delay(() -> {
 	//     asserts.assert(!run);
 	//     asserts.done();
 	//   }, 100);

@@ -14,13 +14,13 @@ class Promises {
 		return switch haxe.macro.Context.typeof(e) {
 			case TAnonymous(_.get() => {fields: fields}):
 				
-				var obj:Array<Field> = [];
-				var exprs:Array<Expr> = [];
+				final obj:Array<Field> = [];
+				final exprs:Array<Expr> = [];
 				
 				for(field in fields) {
-					var name = field.name;
+					final name = field.name;
 					
-					var ct = switch field.type.reduce().toComplex() {
+					final ct = switch field.type.reduce().toComplex() {
 						case TPath({name: 'DirectType', pack: ['tink', 'macro']}) | (macro:Dynamic) | (macro:Any):
 							field.pos.error('Cannot determine the type of ${field.name}, please hint its type explicitly');
 						case ct:
@@ -33,14 +33,14 @@ class Promises {
 						pos: field.pos,
 					});
 					
-					exprs.push(macro (__obj.$name:Promise<$ct>).handle(__ctx.handle(function(r, v) r.$name = v)));
+					exprs.push(macro (__obj.$name:Promise<$ct>).handle(__ctx.handle((r, v) -> r.$name = v)));
 				}
 				
-				var ct = TAnonymous(obj);
+				final ct = TAnonymous(obj);
 				return macro @:pos(e.pos) {
-					var __obj = $e;
-					Future #if (tink_core >= "2") .irreversible #else .async #end(function(cb) {
-						var __ctx = new tink.core.ext.Promises.PromisesContainer<$ct>(cb, $v{fields.length});
+					final __obj = $e;
+					Future.irreversible(cb -> {
+						final __ctx = new tink.core.ext.Promises.PromisesContainer<$ct>(cb, $v{fields.length});
 						$b{exprs}
 					}).asPromise();
 				}
@@ -65,9 +65,9 @@ class Promises {
 }
 
 class PromisesContainer<T:{}> {
-	var result:T = cast {};
+	final result:T = cast {};
+	final cb:Outcome<T, Error>->Void;
 	var count:Int;
-	var cb:Outcome<T, Error>->Void;
 	
 	public function new(cb, count) {
 		this.cb = cb;
@@ -111,9 +111,9 @@ class PromiseQueue<T> {
 			return f();
 		}
 		
-		var ret:Promise<T> =
+		final ret:Promise<T> =
 			if(busy) {
-				var trigger = Promise.trigger();
+				final trigger = Promise.trigger();
 				adder(new Pair(trigger, run));
 				trigger;
 			} else {

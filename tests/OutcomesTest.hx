@@ -15,7 +15,7 @@ class OutcomesTest {
 			bar: bar(),
 		});
 		
-		outcome.next(function(o) {
+		outcome.next(o -> {
 			asserts.assert(o.foo == 1);
 			asserts.assert(o.bar == 'b');
 			return Noise;
@@ -27,7 +27,7 @@ class OutcomesTest {
 	public function multiWithCustomCombiner() {
 		var outcome = Outcomes.multi({foo: foo(), bar: bar()}, {f: foo, b: bar});
 		
-		outcome.next(function(o) {
+		outcome.next(o -> {
 			asserts.assert(o.f == 1);
 			asserts.assert(o.b == 'b');
 			return Noise;

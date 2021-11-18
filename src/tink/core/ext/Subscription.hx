@@ -7,7 +7,7 @@ import tink.core.Error;
 using Lambda;
 
 interface SubscriptionObject extends LinkObject {
-	var error(default, null):Signal<Error>;
+	final error:Signal<Error>;
 }
 
 @:forward
@@ -20,7 +20,7 @@ abstract Subscription(SubscriptionObject) from SubscriptionObject to Subscriptio
 }
 
 class SimpleSubscription extends SimpleLink implements SubscriptionObject {
-	public var error(default, null):Signal<Error>;
+	public final error:Signal<Error>;
 	
 	public function new(f:CallbackLink, error) {
 		super(f);
@@ -29,13 +29,13 @@ class SimpleSubscription extends SimpleLink implements SubscriptionObject {
 }
 
 class Subscriptions implements SubscriptionObject {
-	public var error(default, null):Signal<Error>;
+	public final error:Signal<Error>;
 	
-	var callbacks:CallbackLink;
+	final callbacks:CallbackLink;
 	
 	public function new(list:Array<Subscription>) {
 		callbacks = [for(sub in list) sub.asLink()];
-		error = new Signal(function(cb) return [for(sub in list) sub.error.handle(cb)]);
+		error = new Signal(cb -> [for(sub in list) sub.error.handle(cb)]);
 	}
 	
 	public function cancel() {

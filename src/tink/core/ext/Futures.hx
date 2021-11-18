@@ -27,13 +27,13 @@ class Futures {
 						pos: field.pos,
 					});
 					
-					exprs.push(macro (__obj.$name:Future<$ct>).handle(__ctx.handle(function(r, v) r.$name = v)));
+					exprs.push(macro (__obj.$name:Future<$ct>).handle(__ctx.handle((r, v) -> r.$name = v)));
 				}
 				
 				final ct = TAnonymous(obj);
 				return macro @:pos(e.pos) {
 					final __obj = $e;
-					Future #if (tink_core >= "2") .irreversible #else .async #end(function(cb) {
+					Future.irreversible(cb -> {
 						final __ctx = new tink.core.ext.Futures.FuturesContainer<$ct>(cb, $v{fields.length});
 						$b{exprs}
 					});
