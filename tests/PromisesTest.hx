@@ -23,7 +23,7 @@ class PromisesTest {
 	}
 	
 	public function privateType() {
-		var p = Promise.resolve(({foo:1}:Private));
+		final p = Promise.resolve(({foo:1}:Private));
 		Promises.multi({f: p})
 			.next(o -> asserts.assert(o.f.foo == 1))
 			.handle(asserts.handle);
@@ -44,8 +44,8 @@ class PromisesTest {
 	
 	public function queue() {
 		var counter = 0;
-		var queue = Promises.queue();
-		var promises = [for(i in 1...4) Promise.lazy(() -> Promise.irreversible((resolve, reject) -> {
+		final queue = Promises.queue();
+		final promises = [for(i in 1...4) Promise.lazy(() -> Promise.irreversible((resolve, reject) -> {
 			haxe.Timer.delay(() -> {
 				counter += i;
 				resolve(Noise);

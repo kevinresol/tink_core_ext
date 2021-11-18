@@ -10,7 +10,7 @@ class OutcomesTest {
 	public function new() {}
 	
 	public function multi() {
-		var outcome = Outcomes.multi({
+		final outcome = Outcomes.multi({
 			foo: foo(),
 			bar: bar(),
 		});
@@ -25,7 +25,7 @@ class OutcomesTest {
 	}
 	
 	public function multiWithCustomCombiner() {
-		var outcome = Outcomes.multi({foo: foo(), bar: bar()}, {f: foo, b: bar});
+		final outcome = Outcomes.multi({foo: foo(), bar: bar()}, {f: foo, b: bar});
 		
 		outcome.next(o -> {
 			asserts.assert(o.f == 1);
@@ -37,7 +37,7 @@ class OutcomesTest {
 	}
 	
 	public function multiWithError() {
-		var outcome = Outcomes.multi({
+		final outcome = Outcomes.multi({
 			foo: foo(),
 			bar: bar(),
 			baz: baz(),
